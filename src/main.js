@@ -19,7 +19,7 @@ btnMore.style.display = 'none';
 
 formEl.addEventListener('submit', handleSubmit);
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   const form = event.target;
   page = 1;
@@ -39,92 +39,94 @@ function handleSubmit(event) {
 
   loaderEl.style.display = 'block';
 
-  imageSearch(inputEl, page)
-    .then(data => {
-      //console.log(data.hits.length);
-      if (data.hits.length === 0) {
-        iziToast.show({
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-          position: 'topRight',
-          backgroundColor: 'red',
-          messageColor: '#FFFFFF',
-          transitionIn: 'fadeln',
-          timeout: 4000,
-        });
-        loaderEl.style.display = 'none';
-        btnMore.style.display = 'none';
-        ulEl.innerHTML = '';
-        return;
-      }
-      loaderEl.style.display = 'none';
-      ulEl.innerHTML = createMarkup(data.hits);
-      btnMore.style.display = 'block';
-      deltaPage = Math.ceil(data.totalHits / data.hits.length);
-      //console.log(page);
-      //console.log(deltaPage);
-      if (page >= deltaPage) {
-        btnMore.style.display = 'none';
-        iziToast.show({
-          message: "We're sorry, but you've reached the end of search results.",
-          position: 'topRight',
-          backgroundColor: 'green',
-          messageColor: '#FFFFFF',
-          transitionIn: 'fadeln',
-          timeout: 4000,
-        });
-      }
-      //console.log(ulEl);
-      const lightbox = new SimpleLightbox('.gallery a', {
-        captionsData: 'alt',
-        captionDelay: 250,
+  try {
+    const data = await imageSearch(inputEl, page);
+    //console.log(data.hits.length);
+    if (data.hits.length === 0) {
+      iziToast.show({
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+        position: 'topRight',
+        backgroundColor: 'red',
+        messageColor: '#FFFFFF',
+        transitionIn: 'fadeln',
+        timeout: 4000,
       });
-      lightbox.refresh();
-      //btnMore.style.display = 'block';
-    })
-    .catch(error => alert(error))
-    .finally(() => form.reset());
+      loaderEl.style.display = 'none';
+      btnMore.style.display = 'none';
+      ulEl.innerHTML = '';
+      return;
+    }
+    loaderEl.style.display = 'none';
+    ulEl.innerHTML = createMarkup(data.hits);
+    btnMore.style.display = 'block';
+    deltaPage = Math.ceil(data.totalHits / data.hits.length);
+    //console.log(page);
+    //console.log(deltaPage);
+    if (page >= deltaPage) {
+      btnMore.style.display = 'none';
+      iziToast.show({
+        message: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+        backgroundColor: 'green',
+        messageColor: '#FFFFFF',
+        transitionIn: 'fadeln',
+        timeout: 4000,
+      });
+    }
+    //console.log(ulEl);
+    const lightbox = new SimpleLightbox('.gallery a', {
+      captionsData: 'alt',
+      captionDelay: 250,
+    });
+    lightbox.refresh();
+    //btnMore.style.display = 'block';
+  } catch (error) {
+    alert(error);
+  }
 }
 
 btnMore.addEventListener('click', handleClick);
 
-function handleClick() {
+async function handleClick() {
   btnMore.style.display = 'none';
   loaderEl.style.display = 'block';
   page += 1;
-  imageSearch(inputEl, page)
-    .then(data => {
-      loaderEl.style.display = 'none';
-      ulEl.insertAdjacentHTML('beforeend', createMarkup(data.hits));
-      btnMore.style.display = 'block';
-      //console.log(page);
-      //console.log(deltaPage);
-      if (page >= deltaPage) {
-        btnMore.style.display = 'none';
-        iziToast.show({
-          message: "We're sorry, but you've reached the end of search results.",
-          position: 'topRight',
-          backgroundColor: 'green',
-          messageColor: '#FFFFFF',
-          transitionIn: 'fadeln',
-          timeout: 4000,
-        });
-      }
 
-      const card = document.querySelector('.gallery-link');
-      const cardHeight = card.getBoundingClientRect().height;
-
-      window.scrollBy({
-        left: 0,
-        top: cardHeight * 2,
-        behavior: 'smooth',
+  try {
+    const data = await imageSearch(inputEl, page);
+    loaderEl.style.display = 'none';
+    ulEl.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+    btnMore.style.display = 'block';
+    //console.log(page);
+    //console.log(deltaPage);
+    if (page >= deltaPage) {
+      btnMore.style.display = 'none';
+      iziToast.show({
+        message: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+        backgroundColor: 'green',
+        messageColor: '#FFFFFF',
+        transitionIn: 'fadeln',
+        timeout: 4000,
       });
+    }
 
-      const lightbox = new SimpleLightbox('.gallery a', {
-        captionsData: 'alt',
-        captionDelay: 250,
-      });
-      lightbox.refresh();
-    })
-    .catch(error => alert(error));
+    const card = document.querySelector('.gallery-link');
+    const cardHeight = card.getBoundingClientRect().height;
+
+    window.scrollBy({
+      left: 0,
+      top: cardHeight * 2,
+      behavior: 'smooth',
+    });
+
+    const lightbox = new SimpleLightbox('.gallery a', {
+      captionsData: 'alt',
+      captionDelay: 250,
+    });
+    lightbox.refresh();
+  } catch (error) {
+    alert(error);
+  }
 }
