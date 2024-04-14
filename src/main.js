@@ -12,6 +12,7 @@ const btnMore = document.querySelector('.btn');
 
 let inputEl;
 let page = 1;
+let deltaPage;
 
 loaderEl.style.display = 'none';
 btnMore.style.display = 'none';
@@ -21,8 +22,9 @@ formEl.addEventListener('submit', handleSubmit);
 function handleSubmit(event) {
   event.preventDefault();
   const form = event.target;
+  page = 1;
   inputEl = form.elements.imgname.value;
-  console.log(inputEl);
+  //console.log(inputEl);
   if (inputEl === '') {
     iziToast.show({
       message: 'Field must be filled in!',
@@ -55,35 +57,30 @@ function handleSubmit(event) {
         ulEl.innerHTML = '';
         return;
       }
-
       loaderEl.style.display = 'none';
-
       ulEl.innerHTML = createMarkup(data.hits);
-
-      // deltaPage = data.totalHits / data.hits.length;
-      // console.log(deltaPage);
-      // console.log(data.totalHits);
-      // console.log(deltaPage);
-      // if (page >= deltaPage) {
-      //   btnMore.style.display = 'none';
-      //   iziToast.show({
-      //     message:
-      //       "We're sorry, but you've reached the end of search results.",
-      //     position: 'topRight',
-      //     backgroundColor: 'green',
-      //     messageColor: '#FFFFFF',
-      //     transitionIn: 'fadeln',
-      //     timeout: 4000,
-      //   });
-      // }
-
+      btnMore.style.display = 'block';
+      deltaPage = Math.ceil(data.totalHits / data.hits.length);
+      //console.log(page);
+      //console.log(deltaPage);
+      if (page >= deltaPage) {
+        btnMore.style.display = 'none';
+        iziToast.show({
+          message: "We're sorry, but you've reached the end of search results.",
+          position: 'topRight',
+          backgroundColor: 'green',
+          messageColor: '#FFFFFF',
+          transitionIn: 'fadeln',
+          timeout: 4000,
+        });
+      }
       //console.log(ulEl);
       const lightbox = new SimpleLightbox('.gallery a', {
         captionsData: 'alt',
         captionDelay: 250,
       });
       lightbox.refresh();
-      btnMore.style.display = 'block';
+      //btnMore.style.display = 'block';
     })
     .catch(error => alert(error))
     .finally(() => form.reset());
@@ -92,19 +89,42 @@ function handleSubmit(event) {
 btnMore.addEventListener('click', handleClick);
 
 function handleClick() {
-    btnMore.style.display = 'none';
-    loaderEl.style.display = 'block';
-    page += 1;
-    imageSearch(inputEl, page)
+  btnMore.style.display = 'none';
+  loaderEl.style.display = 'block';
+  page += 1;
+  imageSearch(inputEl, page)
     .then(data => {
       loaderEl.style.display = 'none';
       ulEl.insertAdjacentHTML('beforeend', createMarkup(data.hits));
+      btnMore.style.display = 'block';
+      //console.log(page);
+      //console.log(deltaPage);
+      if (page >= deltaPage) {
+        btnMore.style.display = 'none';
+        iziToast.show({
+          message: "We're sorry, but you've reached the end of search results.",
+          position: 'topRight',
+          backgroundColor: 'green',
+          messageColor: '#FFFFFF',
+          transitionIn: 'fadeln',
+          timeout: 4000,
+        });
+      }
+
+      const card = document.querySelector('.gallery-link');
+      const cardHeight = card.getBoundingClientRect().height;
+
+      window.scrollBy({
+        left: 0,
+        top: cardHeight * 2,
+        behavior: 'smooth',
+      });
+
       const lightbox = new SimpleLightbox('.gallery a', {
         captionsData: 'alt',
         captionDelay: 250,
       });
       lightbox.refresh();
-      btnMore.style.display = 'block';
     })
     .catch(error => alert(error));
 }

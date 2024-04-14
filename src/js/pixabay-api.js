@@ -13,8 +13,8 @@ export async function imageSearch(inputEl, page) {
         orientation: 'horizontal',
         safesearch: true,
         per_page: 15,
-        page
-      }
+        page,
+      },
     };
     const { data } = await axios.get(`${BASE_URL}`, config);
     return data;
