@@ -81,6 +81,7 @@ async function handleSubmit(event) {
     });
     lightbox.refresh();
     //btnMore.style.display = 'block';
+    form.reset();
   } catch (error) {
     alert(error);
   }
