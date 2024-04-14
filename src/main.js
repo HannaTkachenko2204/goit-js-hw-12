@@ -55,6 +55,7 @@ async function handleSubmit(event) {
       loaderEl.style.display = 'none';
       btnMore.style.display = 'none';
       ulEl.innerHTML = '';
+      form.reset();
       return;
     }
     loaderEl.style.display = 'none';
